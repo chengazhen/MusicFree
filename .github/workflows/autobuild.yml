@@ -29,8 +29,12 @@ jobs:
         run: | 
           cd ./android
           ./gradlew assembleRelease
-      - name: Generate Changelog
-        run: echo github.event_name
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release-${{ env.VERSION }}
+          path: android/app/build/outputs/apk/release/*.apk
+          retention-days: 90
   manual: 
     runs-on: ubuntu-latest
     if: "github.event_name == 'workflow_dispatch'"
@@ -54,4 +58,10 @@ jobs:
         run: | 
           cd ./android
           ./gradlew assembleRelease
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release-${{ env.VERSION }}
+          path: android/app/build/outputs/apk/release/*.apk
+          retention-days: 90
       

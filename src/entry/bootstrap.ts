@@ -33,6 +33,55 @@ import {showDialog} from '@/components/dialogs/useDialog.ts';
  * 3.
  */
 
+/** 内置插件配置 */
+const BUILTIN_PLUGINS = [
+    {
+        name: '小秋音乐',
+        url: 'https://fastly.jsdelivr.net/gh/Huibq/keep-alive/Music_Free/xiaoqiu.js',
+        version: '0.3.0',
+    },
+    {
+        name: '小蜗音乐',
+        url: 'https://fastly.jsdelivr.net/gh/Huibq/keep-alive/Music_Free/xiaowo.js',
+        version: '0.3.0',
+    },
+    {
+        name: '小芸音乐',
+        url: 'https://fastly.jsdelivr.net/gh/Huibq/keep-alive/Music_Free/xiaoyun.js',
+        version: '0.3.0',
+    },
+    {
+        name: '小枸音乐',
+        url: 'https://fastly.jsdelivr.net/gh/Huibq/keep-alive/Music_Free/xiaogou.js',
+        version: '0.3.0',
+    },
+    {
+        name: '小蜜音乐',
+        url: 'https://fastly.jsdelivr.net/gh/Huibq/keep-alive/Music_Free/xiaomi.js',
+        version: '0.3.0',
+    },
+];
+
+async function installBuiltinPlugins() {
+    for (const plugin of BUILTIN_PLUGINS) {
+        try {
+            // 检查插件是否已安装
+            const existingPlugin = PluginManager.getValidPlugins().find(
+                p => p.name === plugin.name,
+            );
+
+            if (!existingPlugin) {
+                // 未安装则安装
+                await PluginManager.installPluginFromUrl(plugin.url, {
+                    notCheckVersion: true,
+                });
+            }
+        } catch (e) {
+            errorLog(`内置插件 ${plugin.name} 安装失败`, e);
+        }
+    }
+}
+
 async function _bootstrap() {
     await SplashScreen.preventAutoHideAsync()
         .then(result =>
@@ -138,9 +187,13 @@ async function _bootstrap() {
     logger.mark('播放器初始化完成');
     trace('播放器初始化完成');
 
+    // 先初始化插件管理器
     await PluginManager.setup();
-    logger.mark('插件初始化完成');
 
+    // 安装内置插件
+    await installBuiltinPlugins();
+
+    logger.mark('插件初始化完成');
     trace('插件初始化完成');
     await TrackPlayer.setupTrackPlayer();
     trace('播放列表初始化完成');
